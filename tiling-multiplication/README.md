@@ -1,1 +1,1 @@
-There is cache-efficient implementation of matrix multiplication also known as tiling matrix multiplication. The main idea is to split into blocks to fit them into cache. Then we can make seperate threads to calculate each tile 
+There is cache-efficient implementation of matrix multiplication also known as tiling matrix multiplication. The main idea is to split into blocks to fit them into cache. Then we can make seperate threads to calculate each submatrix 
