@@ -120,6 +120,9 @@ int main(int argc, char **argv) {
 	auto threadDuration = duration_cast<std::chrono::microseconds>(
 			stop - start);
 
+    delete []matrixA;
+    delete []matrixB;
+    delete []matrixC;
 	FILE *file = fopen("output", "ab+");
 	long long buffer[2] { (long long) THREADS_NUMBER, threadDuration.count() };
 	auto nBytes = fwrite(buffer, sizeof(buffer[0]), 2, file);
