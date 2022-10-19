@@ -11,7 +11,7 @@ int THREADS_NUMBER = 250;
 int i_step = 0;
 
 
-void multithreadingMult(double *A, double *B, double *C) {
+void standardMult(double *A, double *B, double *C) {
 	int i = i_step++;
 	for (int j = 0; j < MATRIX_SIZE; j++) {
 		for (int k = 0; k < MATRIX_SIZE; k++) {
@@ -32,13 +32,13 @@ void stupidMultiplication(double *A, double *B, double *C) {
 	}
 }
 
-void multithreadingMultiplication(double *A, double *B, double *C,
+void standardMultiplication(double *A, double *B, double *C,
 		std::vector<std::thread> &threads) {
 	while (i_step < MATRIX_SIZE) {
 		if (threads.size() < THREADS_NUMBER) {
-			threads[threads.size()] = std::thread(multithreadingMult, A, B, C);
+			threads[threads.size()] = std::thread(standardMult, A, B, C);
 		} else {
-			multithreadingMult(A, B, C);
+			standardMult(A, B, C);
 		}
 	}
 
@@ -50,7 +50,6 @@ void multithreadingMultiplication(double *A, double *B, double *C,
 }
 
 void tileMult(double *A, double *B, double *C, size_t i, size_t j, size_t k) {
-
 	for (size_t iTile = 0; iTile < TILE_DIM; ++iTile) {
 		for (size_t kTile = 0; kTile < TILE_DIM; ++kTile) {
 			for (size_t jTile = 0; jTile < TILE_DIM; ++jTile) {
@@ -62,7 +61,7 @@ void tileMult(double *A, double *B, double *C, size_t i, size_t j, size_t k) {
 	}
 }
 
-void tilingMultiplication(double *A, double *B, double *C,
+void concurrentTilingMultiplication(double *A, double *B, double *C,
 		std::vector<std::thread> &threads) {
 	for (size_t i = 0; i < MATRIX_SIZE; i += TILE_DIM) {
 		for (size_t j = 0; j < MATRIX_SIZE; j += TILE_DIM) {
@@ -70,7 +69,7 @@ void tilingMultiplication(double *A, double *B, double *C,
 				if (threads.size() >= THREADS_NUMBER) {
 					tileMult(A, B, C, i, j, k);
 				} else {
-					threads[threads.size()] = std::move(std::thread(tileMult, A, B, C, i, j, k));
+					threads[threads.size()] = std::thread(tileMult, A, B, C, i, j, k);
 				}
 			}
 		}
@@ -115,7 +114,7 @@ int main(int argc, char **argv) {
 	}
 
 	auto start = std::chrono::high_resolution_clock::now();
-	tilingMultiplication(matrixA, matrixB, matrixC, threads);
+	concurrentTilingMultiplication(matrixA, matrixB, matrixC, threads);
 	auto stop = std::chrono::high_resolution_clock::now();
 
 	auto threadDuration = duration_cast<std::chrono::microseconds>(
